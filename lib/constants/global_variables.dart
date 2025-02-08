@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 
-String uri = 'http://192.168.2.140:5000';
+String uri = 'http://192.168.1.112:5000';
 
 // const String google_api_key ="AIzaSyBbzSbqNS28snAxOWn4EMP5j9HW0jLNMYs";
 class GlobalVariables {

@@ -1,74 +1,22 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
-
-// class ReplyCard extends StatelessWidget {
-//   const ReplyCard({
-//     Key? key,
-//     required this.message,
-//     required this.time,
-//   }) : super(key: key);
-//   final String message;
-//   final String time;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Align(
-//       alignment: Alignment.centerLeft,
-//       child: ConstrainedBox(
-//         constraints: BoxConstraints(
-//           maxWidth: MediaQuery.of(context).size.width - 45,
-//         ),
-//         child: Card(
-//           elevation: 1,
-//           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-//           // color: Color(0xffdcf8c6),
-//           margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-//           child: Stack(
-//             children: [
-//               Padding(
-//                 padding: const EdgeInsets.only(
-//                   left: 8,
-//                   right: 50,
-//                   top: 5,
-//                   bottom: 10,
-//                 ),
-//                 child: Text(
-//                   message,
-//                   style: const TextStyle(
-//                     fontSize: 16,
-//                   ),
-//                 ),
-//               ),
-//               Positioned(
-//                 bottom: 4,
-//                 right: 10,
-//                 child: Text(
-//                   time,
-//                   style: TextStyle(
-//                     fontSize: 13,
-//                     color: Colors.grey[600],
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
+import 'package:intl/intl.dart';
+import 'package:social/screens/chat/message_action_widget.dart';
 
 class ReplyMessageCard extends StatefulWidget {
   const ReplyMessageCard({
     Key? key,
     required this.message,
     required this.time,
+    required this.messageId,
+    this.replyToId,
+    this.replyToContent,
   }) : super(key: key);
 
   final String message;
-  final String time;
+  final DateTime time;
+  final String messageId;
+  final String? replyToId;
+  final String? replyToContent;
 
   @override
   ReplyMessageCardState createState() => ReplyMessageCardState();
@@ -77,6 +25,8 @@ class ReplyMessageCard extends StatefulWidget {
 class ReplyMessageCardState extends State<ReplyMessageCard> {
   OverlayEntry? _overlayEntry;
   String? selectedEmoji;
+  double left = 0.0;
+  double top = 0.0;
 
   void _showReactionEmojis(BuildContext context, Offset position) {
     _overlayEntry?.remove();
@@ -85,8 +35,8 @@ class ReplyMessageCardState extends State<ReplyMessageCard> {
     const containerWidth = 300.0;
     const containerHeight = 50.0;
 
-    double left = position.dx - (containerWidth / 2);
-    double top = position.dy - 60;
+    left = (screenSize.width - containerWidth) / 2 + 30;
+    top = (screenSize.height - containerHeight) / 2 - 50;
 
     if (left < 10) left = 10;
     if (left + containerWidth > screenSize.width - 10) {
@@ -115,7 +65,8 @@ class ReplyMessageCardState extends State<ReplyMessageCard> {
             child: Material(
               color: Colors.transparent,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30),
@@ -151,7 +102,11 @@ class ReplyMessageCardState extends State<ReplyMessageCard> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          selectedEmoji = emoji;
+          if (selectedEmoji == emoji) {
+            selectedEmoji = null; // Deselect emoji when tapped again
+          } else {
+            selectedEmoji = emoji;
+          }
         });
         _overlayEntry?.remove();
         _overlayEntry = null;
@@ -175,90 +130,150 @@ class ReplyMessageCardState extends State<ReplyMessageCard> {
 
   @override
   Widget build(BuildContext context) {
+    String formattedTime = DateFormat('HH:mm').format(widget.time);
+
     return Align(
-      alignment: Alignment.centerLeft,
-      child: Row(
-        children: [
-          Flexible(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width - 80, // Adjust for space for the time
+        alignment: Alignment.centerRight,
+        child: Column(
+          children: [
+            if (widget.replyToId != null)
+              Text(
+                'Replied by you ${widget.replyToId}',
+                style: TextStyle(
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey,
+                    fontSize: 12),
               ),
-              child: Stack(
+            if (widget.replyToId != null)
+              Stack(
                 children: [
                   Card(
                     elevation: 1,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    color: const Color(0xffdcf8c6), // Adjust message color to match OwnMessageCard
-                    margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                    child: GestureDetector(
-                      onLongPressStart: (details) {
-                        _showReactionEmojis(context, details.globalPosition);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 10,
-                          right: 30,
-                          top: 5,
-                          bottom: 10,
-                        ),
-                        child: Text(
-                          widget.message,
-                          style: const TextStyle(fontSize: 16),
-                        ),
+                    color: const Color.fromRGBO(121, 215, 190, 1),
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        left: 15,
+                        right: 15,
+                        top: 10,
+                        bottom: 10,
+                      ),
+                      child: Text(widget.replyToContent ?? ''),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white
+                            .withOpacity(0.5), // Semi-transparent white overlay
+                        borderRadius: BorderRadius.circular(15),
                       ),
                     ),
                   ),
-                  if (selectedEmoji != null)
-                    Positioned(
-                      bottom: -25, // Adjust this value to make it float half above and half below the message container
-                      right: 15,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          selectedEmoji!,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ),
-                  // Positioned(
-                  //   bottom: 4,
-                  //   right: 25,
-                  //   child: Icon(
-                  //     Icons.done_all,
-                  //     size: 20,
-                  //     color: Colors.grey[600],
-                  //   ),
-                  // ),
                 ],
               ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width - 100,
+                    ),
+                    child: Stack(
+                      clipBehavior: Clip
+                          .none, // This allows the emoji to overflow outside the card boundary
+                      children: [
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          color: Colors.grey[350],
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          child: GestureDetector(
+                            onLongPressStart: (details) {
+                              _showReactionEmojis(
+                                  context, details.globalPosition);
+                              MessageActionWidget.show(
+                                context,
+                                position: Offset(left, top + 50),
+                                messageId: widget.messageId,
+                                hide: false,
+                                messageType: 'message',
+                                message: widget.message,
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                left: 15,
+                                right: 15,
+                                top: 10,
+                                bottom: 10,
+                              ),
+                              child: Text(
+                                widget.message
+                                    .trim(), // Apply trim here to remove any leading/trailing whitespace
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (selectedEmoji != null)
+                          Positioned(
+                            bottom:
+                                -20, // Adjust the bottom offset to position the emoji
+                            right: 15,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedEmoji =
+                                      null; // Remove the emoji on tap
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Text(
+                                  selectedEmoji!,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(),
+                  child: Text(
+                    formattedTime,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 15, bottom: 8),
-            child: Text(
-              widget.time,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[600],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ));
   }
 }

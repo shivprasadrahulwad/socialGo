@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:social/screens/chat/image_share_screen.dart';
+import 'package:social/screens/chat/message_action_widget.dart';
 
 // class ReplayImageCard extends StatelessWidget {
 //   const ReplayImageCard({
@@ -41,10 +42,12 @@ class ReplyImageCard extends StatefulWidget {
     Key? key,
     required this.path,
     required this.time,
+    required this.messageId,
   }) : super(key: key);
 
   final String path;
-  final String time;
+  final DateTime time;
+  final String messageId;
 
   @override
   _ReplyImageCardState createState() => _ReplyImageCardState();
@@ -53,6 +56,23 @@ class ReplyImageCard extends StatefulWidget {
 class _ReplyImageCardState extends State<ReplyImageCard> {
   OverlayEntry? _overlayEntry;
   String? selectedEmoji;
+  late double left;
+  late double top;
+
+
+   String get optimizedImageUrl {
+    // Add Cloudinary transformations for optimal loading
+    // Example: w_auto,c_scale,q_auto,f_auto
+    if (widget.path.contains('cloudinary.com')) {
+      final uri = Uri.parse(widget.path);
+      final pathSegments = uri.pathSegments;
+      final insertIndex = pathSegments.indexOf('upload') + 1;
+      final newPathSegments = List<String>.from(pathSegments);
+      newPathSegments.insert(insertIndex, 'w_auto,c_scale,q_auto,f_auto');
+      return uri.replace(pathSegments: newPathSegments).toString();
+    }
+    return widget.path;
+  }
 
   void _showReactionEmojis(BuildContext context, Offset position) {
     _overlayEntry?.remove();
@@ -61,8 +81,8 @@ class _ReplyImageCardState extends State<ReplyImageCard> {
     const containerWidth = 300.0;
     const containerHeight = 50.0;
     
-    double left = position.dx - (containerWidth / 2);
-    double top = position.dy - 60;
+    left = (screenSize.width - containerWidth) / 2 + 30;
+    top = (screenSize.height - containerHeight) / 2 - 50;
     
     if (left < 10) left = 10;
     if (left + containerWidth > screenSize.width - 10) {
@@ -194,9 +214,17 @@ Widget build(BuildContext context) {
                       },
                       onLongPressStart: (details) {
                         _showReactionEmojis(context, details.globalPosition);
+                        MessageActionWidget.show(
+                          context,
+                          position: Offset(left, top + 50),
+                          messageId: widget.messageId,
+                          hide: false,
+                          messageType: 'image',
+                          message: widget.path,
+                        );
                       },
                       child: Image.network(
-                        widget.path,
+                        optimizedImageUrl,
                         fit: BoxFit.cover,
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
@@ -261,7 +289,7 @@ Widget build(BuildContext context) {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: Text(
-              widget.time,
+              widget.time.toString(),
               style: const TextStyle(
                 color: Colors.grey,
                 fontSize: 12,

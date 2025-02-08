@@ -70,24 +70,24 @@ class _ImageShareScreenState extends State<ImageShareScreen> with SingleTickerPr
   }
 
   Future<void> _shareImage() async {
-    setState(() => _isLoading = true);
-    try {
-      final response = await http.get(Uri.parse(widget.imageUrl));
-      if (response.statusCode != 200) throw Exception('Failed to download image');
+  setState(() => _isLoading = true);
+  try {
+    final response = await http.get(Uri.parse(widget.imageUrl));
+    if (response.statusCode != 200) throw Exception('Failed to download image');
 
-      final tempDir = await getTemporaryDirectory();
-      final tempPath = '${tempDir.path}/share_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      await File(tempPath).writeAsBytes(response.bodyBytes);
+    final tempDir = await getTemporaryDirectory();
+    final tempPath = '${tempDir.path}/share_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final File imageFile = File(tempPath);
+    await imageFile.writeAsBytes(response.bodyBytes);
 
-      await Share.shareFiles([tempPath], text: 'Check out this image!');
-      await File(tempPath).delete();
-    } catch (e) {
-      _showErrorMessage('Error sharing image');
-    } finally {
-      setState(() => _isLoading = false);
-    }
+    await Share.shareXFiles([XFile(tempPath)], text: 'Check out this image!');
+    await imageFile.delete();
+  } catch (e) {
+    _showErrorMessage('Error sharing image: $e');
+  } finally {
+    setState(() => _isLoading = false);
   }
-
+}
   void _showSuccessMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

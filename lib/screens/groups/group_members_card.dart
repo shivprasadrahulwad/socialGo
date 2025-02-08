@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:social/model/chatModel.dart';
-import 'package:social/screens/chat/chat_screen.dart';
 
 class GroupMembersCard extends StatelessWidget {
   const GroupMembersCard({
@@ -12,17 +10,17 @@ class GroupMembersCard extends StatelessWidget {
     return InkWell(
       onTap: () {
       },
-      child: Column(
+      child: const Column(
         children: [
           ListTile(
-            leading: const CircleAvatar(
+            leading: CircleAvatar(
               radius: 30,
               child: Icon(Icons.group),
               backgroundColor: Colors.blueGrey,
             ),
             title: Text(
               '~Shivprasad',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),

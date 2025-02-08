@@ -314,3 +314,262 @@
 
 
 
+import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:social/model/chatData.dart';
+import 'package:social/model/message.dart';
+import 'package:social/screens/chat/chat_screen.dart';
+
+class ChatDataDisplayWidget extends StatefulWidget {
+  @override
+  _ChatDataDisplayWidgetState createState() => _ChatDataDisplayWidgetState();
+}
+
+class _ChatDataDisplayWidgetState extends State<ChatDataDisplayWidget> {
+  List<ChatData> _chatDataList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadChatData();
+  }
+
+  Future<void> _loadChatData() async {
+    final box = await Hive.openBox<ChatData>('chatData');
+    
+    setState(() {
+      // Convert all values in the box to a list
+      _chatDataList = box.values.toList();
+    });
+
+    // Optional: Close the box when done
+    await box.close();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Stored Chat Data'),
+      ),
+      body: _chatDataList.isEmpty
+          ? Center(child: Text('No chat data found'))
+          : ListView.builder(
+              itemCount: _chatDataList.length,
+              itemBuilder: (context, index) {
+                final chatData = _chatDataList[index];
+                return ListTile(
+                  title: Text('Chat ID: ${chatData.chatId}'),
+                  subtitle: Text('Receiver ID: ${chatData.receiverId}'),
+                );
+              },
+            ),
+    );
+  }
+}
+
+
+
+
+
+// class ChatDataScreen extends StatefulWidget {
+//   final String chatId;
+
+//   const ChatDataScreen({Key? key, required this.chatId}) : super(key: key);
+
+//   @override
+//   _ChatDataScreenState createState() => _ChatDataScreenState();
+// }
+
+// class _ChatDataScreenState extends State<ChatDataScreen> {
+//   late Box<Message> messagesBox;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     // Open the Hive box for messages
+//     messagesBox = Hive.box<Message>('messages');
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Chat Messages'),
+//       ),
+//       body: ValueListenableBuilder(
+//         valueListenable: messagesBox.listenable(),
+//         builder: (context, Box<Message> box, _) {
+//           // Filter messages for the current chat
+//           final messages = box.values
+//               .where((message) => message.chatId == widget.chatId)
+//               .toList();
+
+//           if (messages.isEmpty) {
+//             return Center(
+//               child: Text('No messages found.'),
+//             );
+//           }
+
+//           return ListView.builder(
+//             padding: EdgeInsets.all(8.0),
+//             itemCount: messages.length,
+//             itemBuilder: (context, index) {
+//               final message = messages[index];
+//               return MessageBubble(message: message);
+//             },
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }
+
+// class MessageBubble extends StatelessWidget {
+//   final Message message;
+
+//   const MessageBubble({Key? key, required this.message}) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: EdgeInsets.symmetric(vertical: 4.0),
+//       padding: EdgeInsets.all(8.0),
+//       decoration: BoxDecoration(
+//         color: message.senderId == 'currentUserId' ? Colors.blue[100] : Colors.grey[200],
+//         borderRadius: BorderRadius.circular(8.0),
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             message.senderId,
+//             style: TextStyle(fontWeight: FontWeight.bold),
+//           ),
+//           SizedBox(height: 4.0),
+//           if (message.type == MessageType.text)
+//             Text(message.content.text ?? ''),
+//           if (message.type == MessageType.image)
+//             Image.network(message.content.mediaUrl ?? ''),
+//           if (message.type == MessageType.video)
+//             Text('Video: ${message.content.mediaUrl}'),
+//           if (message.type == MessageType.audio)
+//             Text('Audio: ${message.content.duration} seconds'),
+//           SizedBox(height: 4.0),
+//           Text(
+//             '${message.createdAt.toLocal()}',
+//             style: TextStyle(fontSize: 12.0, color: Colors.grey),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+
+
+class ChatDataScreen extends StatefulWidget {
+  final String chatId;
+
+  const ChatDataScreen({Key? key, required this.chatId}) : super(key: key);
+
+  @override
+  _ChatDataScreenState createState() => _ChatDataScreenState();
+}
+
+class _ChatDataScreenState extends State<ChatDataScreen> {
+  late Box<Message> messagesBox;
+
+  @override
+  void initState() {
+    super.initState();
+    // Open the Hive box for messages
+    messagesBox = Hive.box<Message>('messages');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Chat Messages'),
+      ),
+      body: ValueListenableBuilder(
+        valueListenable: messagesBox.listenable(),
+        builder: (context, Box<Message> box, _) {
+          // Filter messages for the current chat
+          final messages = box.values
+              .where((message) => message.chatId == widget.chatId)
+              .toList();
+
+          if (messages.isEmpty) {
+            return Center(
+              child: Text('No messages found.'),
+            );
+          }
+
+          return ListView.builder(
+            padding: EdgeInsets.all(8.0),
+            itemCount: messages.length,
+            itemBuilder: (context, index) {
+              final message = messages[index];
+              return MessageBubble(message: message);
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class MessageBubble extends StatelessWidget {
+  final Message message;
+
+  const MessageBubble({Key? key, required this.message}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 4.0),
+      padding: EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: message.senderId == 'currentUserId' ? Colors.blue[100] : Colors.grey[200],
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            message.senderId,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 4.0),
+          // Display message ID
+          Text(
+            'Message ID: ${message.messageId}',
+            style: TextStyle(fontSize: 12.0, color: Colors.grey),
+          ),
+          SizedBox(height: 4.0),
+          Text(
+            'reply To: ${message.replyTo}',
+            style: TextStyle(fontSize: 12.0, color: Colors.grey),
+          ),
+          SizedBox(height: 4.0),
+          if (message.type == MessageType.text)
+            Text(message.content.text ?? ''),
+          if (message.type == MessageType.image)
+            Image.network(message.content.mediaUrl ?? ''),
+          if (message.type == MessageType.video)
+            Text('Video: ${message.content.mediaUrl}'),
+          if (message.type == MessageType.audio)
+            Text('Audio: ${message.content.duration} seconds'),
+          SizedBox(height: 4.0),
+          Text(
+            '${message.createdAt.toLocal()}',
+            style: TextStyle(fontSize: 12.0, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+}

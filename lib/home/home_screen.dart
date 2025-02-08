@@ -3,16 +3,15 @@ import 'package:provider/provider.dart';
 import 'package:social/constants/global_variables.dart';
 import 'package:social/providers/user_provider.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomesScreen extends StatefulWidget {
   static const String routeName = '/home';
-  final String shopCode;
-  const HomeScreen({Key? key, required this.shopCode}) : super(key: key);
+  const HomesScreen({Key? key,}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomesScreen> createState() => _HomesScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomesScreenState extends State<HomesScreen> {
   String currentHint = 'Search products';
   late Stream<String> _hintStream;
   Map<String, List> categoryProducts = {};
@@ -463,138 +462,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         // if (_isFloatingContainerOpen)
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  // _isFloatingContainerOpen = false;
-                  print('_isFloatingContainerOpen  clikced');
-                });
-              },
-              child: Container(
-                height: 133,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20), // Rounded upper corners
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 6,
-                      offset: const Offset(0, -4),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(),
-                  child: Column(children: [
-                    // SlidingBannerWidget(),
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(right: 10, left: 10, top: 10),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: const Color.fromARGB(255, 228, 229, 239),
-                              ),
-                              child: const Padding(
-                                padding: EdgeInsets.all(10),
-                                child: Icon(
-                                  Icons.list,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                // _isItemDetailsOpen = true;
-                                // _openBottomSheet(context);
-                              });
-                            },
-                            child: Row(
-                              children: [
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                const Icon(
-                                  Icons.arrow_drop_up,
-                                  color: GlobalVariables.greenColor,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Spacer(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                style: ButtonStyle(
-                                  elevation: MaterialStateProperty.all(0),
-                                  shadowColor: MaterialStateProperty.all(
-                                      Colors.transparent),
-                                  backgroundColor: MaterialStateProperty.all(
-                                      GlobalVariables.greenColor),
-                                  shape: MaterialStateProperty.all(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  // Navigator.pushNamed(
-                                  //     context, '/user-cart-products');
-                                  setState(() {
-                                    // _isFloatingContainerOpen = false;
-                                  });
-                                },
-                                child: const Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.all(5),
-                                        child: Text(
-                                          'Place order',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.white,
-                                            fontFamily: 'SemiBold',
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 8),
-                                      Icon(
-                                        Icons.arrow_forward_ios,
-                                        color: Colors.white,
-                                        size: 18,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ]),
-                ),
-              ),
-            ),
-          ),
         // if (!_isFloatingContainerOpen) const SlidingBannerWidget(),
       ]),
     );

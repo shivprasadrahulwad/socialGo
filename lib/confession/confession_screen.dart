@@ -34,7 +34,7 @@ class _ConfessionScreenState extends State<ConfessionScreen> {
   }
 
   void connect() {
-    socket = IO.io('http://192.168.2.140:5000', <String, dynamic>{
+    socket = IO.io('http://192.168.1.112:5000', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
     });

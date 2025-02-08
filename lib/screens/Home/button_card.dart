@@ -75,6 +75,21 @@ class ButtonCard extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
+      subtitle: const Row(
+              children: [
+                Icon(Icons.done_all),
+                SizedBox(
+                  width: 3,
+                ),
+                Text(
+                  'we have to show latest message',
+                  style: TextStyle(
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+            // trailing: Text(chatModells.createdAt.toString()),
     );
   }
 }
